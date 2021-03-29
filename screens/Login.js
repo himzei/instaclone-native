@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { gql } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 import AuthLayout from "../components/auth/AuthLayout";
 import AuthButton from "../components/auth/AuthButton";
 import { TextInput } from "../components/auth/AuthShared";
-import { useMutation } from "@apollo/client";
-import { isLoggedInVar } from "../apollo";
+import { isLoggedInVar, logUserIn } from "../apollo";
 
 const LOGIN_MUTATION = gql`
   mutation login($username: String!, $password: String!) {
@@ -17,15 +16,22 @@ const LOGIN_MUTATION = gql`
   }
 `;
 
-export default function LogIn() {
-  const { register, handleSubmit, setValue, watch } = useForm();
+export default function Login({ route: { params } }) {
+  const { register, handleSubmit, setValue, watch } = useForm({
+    defaultValues: {
+      password: params?.password,
+      username: params?.username,
+    },
+  });
+
   const passwordRef = useRef();
-  const onCompleted = (data) => {
+
+  const onCompleted = async (data) => {
     const {
       login: { ok, token },
     } = data;
     if (ok) {
-      isLoggedInVar(true);
+      await logUserIn(token);
     }
   };
   const [logInMutation, { loading }] = useMutation(LOGIN_MUTATION, {
@@ -48,9 +54,12 @@ export default function LogIn() {
     register("password");
   }, [register]);
 
+  console.log(watch());
+
   return (
     <AuthLayout>
       <TextInput
+        value={watch("username")}
         placeholder="username"
         autoCapitalize={"none"}
         returnKeyType="next"
@@ -59,6 +68,7 @@ export default function LogIn() {
         onChangeText={(text) => setValue("username", text)}
       />
       <TextInput
+        value={watch("password")}
         ref={passwordRef}
         placeholder="Password"
         secureTextEntry
