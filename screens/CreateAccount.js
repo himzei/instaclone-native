@@ -21,11 +21,11 @@ export default function CreateAccount() {
     console.log(data);
   };
   useEffect(() => {
-    register("fisstName");
-    register("lastName");
-    register("username");
-    register("email");
-    register("password");
+    register("firstName", { required: true });
+    register("lastName", { required: true });
+    register("username", { required: true });
+    register("email", { required: true });
+    register("password", { required: true });
   }, [register]);
   return (
     <AuthLayout>
@@ -60,12 +60,14 @@ export default function CreateAccount() {
       <TextInput
         ref={emailRef}
         placeholder="Email"
+        autoCapitalize={"none"}
         placeholderTextColor="gray"
         keyboardType="email-address"
         returnKeyType="next"
         onSubmitEditing={() => onNext(passwordRef)}
         placeholderTextColor={"rgba(255, 255, 255, 0.4)"}
         onChangeText={(text) => setValue("email", text)}
+        onSubmitEditing={handleSubmit(onValid)}
       />
       <TextInput
         ref={passwordRef}
@@ -79,7 +81,11 @@ export default function CreateAccount() {
         placeholderTextColor={"rgba(255, 255, 255, 0.4)"}
         onChangeText={(text) => setValue("password", text)}
       />
-      <AuthButton text="Create Account" disabled={true} onPress={() => null} />
+      <AuthButton
+        text="Create Account"
+        disabled={false}
+        onPress={handleSubmit(onValid)}
+      />
     </AuthLayout>
   );
 }
