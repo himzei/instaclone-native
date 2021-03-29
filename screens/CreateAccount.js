@@ -75,7 +75,7 @@ export default function CreateAccount({ navigation }) {
     register("email", { required: true });
     register("password", { required: true });
   }, [register]);
-  console.log(watch());
+
   return (
     <AuthLayout>
       <TextInput

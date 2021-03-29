@@ -54,8 +54,6 @@ export default function Login({ route: { params } }) {
     register("password");
   }, [register]);
 
-  console.log(watch());
-
   return (
     <AuthLayout>
       <TextInput
