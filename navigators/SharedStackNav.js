@@ -1,16 +1,18 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import Photo from "../../screens/Photo";
-import Profile from "../../screens/Profile";
-import Me from "../../screens/Me";
-import Search from "../../screens/Search";
-import Feed from "../../screens/Feed";
+import Photo from "../screens/Photo";
+import Profile from "../screens/Profile";
+import Me from "../screens/Me";
+import Search from "../screens/Search";
+import Feed from "../screens/Feed";
+import { Image } from "react-native";
 
 const Stack = createStackNavigator();
 
-export default function StackNavFactory({ screenName }) {
+export default function SharedStackNav({ screenName }) {
   return (
     <Stack.Navigator
+      headerMode="screen"
       screenOptions={{
         headerBackTitleVisible: false,
         headerTintColor: "white",
@@ -21,7 +23,19 @@ export default function StackNavFactory({ screenName }) {
       }}
     >
       {screenName === "Feed" ? (
-        <Stack.Screen name={"Feed"} component={Feed} />
+        <Stack.Screen
+          name={"Feed"}
+          component={Feed}
+          options={{
+            headerTitle: () => (
+              <Image
+                resizeMode="contain"
+                style={{ maxHeight: 40 }}
+                source={require("../assets/logo.png")}
+              />
+            ),
+          }}
+        />
       ) : null}
       {screenName === "Search" ? (
         <Stack.Screen name={"Search"} component={Search} />
