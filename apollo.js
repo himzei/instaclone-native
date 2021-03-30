@@ -6,7 +6,7 @@ import {
 } from "@apollo/client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setContext } from "@apollo/client/link/context";
-import { set } from "react-native-reanimated";
+import { offsetLimitPagination } from "@apollo/client/utilities";
 
 const TOKEN = "token";
 
@@ -40,7 +40,15 @@ const authLink = setContext((_, { headers }) => {
 
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          seeFeed: offsetLimitPagination(),
+        },
+      },
+    },
+  }),
 });
 
 export default client;
