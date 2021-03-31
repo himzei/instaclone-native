@@ -40,9 +40,8 @@ export default function UserRow({ id, avatar, username, isFollowing, isMe }) {
   return (
     <Wrapper>
       <Column
-        onPress={
-          (() => navigation.navigate("Profile"),
-          {
+        onPress={() =>
+          navigation.navigate("Profile", {
             username,
             id,
           })
