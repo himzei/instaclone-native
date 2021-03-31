@@ -18,7 +18,7 @@ export default function UploadNav() {
         },
         activeTintColor: "white",
         indicatorStyle: {
-          backgroundColor: "tomato",
+          backgroundColor: "white",
           top: 0,
         },
       }}
