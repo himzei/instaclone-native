@@ -1,8 +1,7 @@
-import { useLazyQuery } from "@apollo/client";
-import gql from "graphql-tag";
+import { useLazyQuery, gql } from "@apollo/client";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { View, TextInput, Text } from "react-native";
+import { View, TextInput, ActivityIndicator } from "react-native";
 import styled from "styled-components/native";
 import DismissKeyboard from "../components/DismissKeyboard";
 
@@ -15,11 +14,29 @@ const SEARCH_PHOTOS = gql`
   }
 `;
 
+const MessageContainer = styled.View`
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+`;
+const MessageText = styled.Text`
+  margin-top: 10px;
+  color: white;
+  font-weight: 600;
+`;
+
 const Input = styled.TextInput``;
 
 export default function Search({ navigation }) {
-  const { setValue, register, watch } = useForm();
-  const [startQueryFn, { loading, data }] = useLazyQuery(SEARCH_PHOTOS);
+  const { setValue, register, watch, handleSubmit } = useForm();
+  const [startQueryFn, { loading, data, called }] = useLazyQuery(SEARCH_PHOTOS);
+  const onValid = ({ keyword }) => {
+    startQueryFn({
+      variables: {
+        keyword,
+      },
+    });
+  };
   const SearchBox = () => (
     <TextInput
       style={{ backgroundColor: "white" }}
@@ -30,6 +47,7 @@ export default function Search({ navigation }) {
       returnKeyType="search"
       autoCorrect={false}
       onChangeText={(text) => setValue("keyword", text)}
+      onSubmitEditing={handleSubmit(onValid)}
     />
   );
   useEffect(() => {
@@ -38,18 +56,27 @@ export default function Search({ navigation }) {
     });
     register("keyword");
   }, []);
-  console.log(watch());
+  console.log(data);
   return (
     <DismissKeyboard>
-      <View
-        style={{
-          backgroundColor: "black",
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Text style={{ color: "white" }}>Photo</Text>
+      <View style={{ flex: 1, backgroundColor: "black" }}>
+        {loading ? (
+          <MessageContainer>
+            <ActivityIndicator size="large" />
+            <MessageText>Searching...</MessageText>
+          </MessageContainer>
+        ) : null}
+        {!called ? (
+          <MessageContainer>
+            <MessageText>Search by keyword</MessageText>
+          </MessageContainer>
+        ) : null}
+        {!data?.searchPhotos !== undefined &&
+        data?.searchPhotos.length === 0 ? (
+          <MessageContainer>
+            <MessageText>Could not find anything</MessageText>
+          </MessageContainer>
+        ) : null}
       </View>
     </DismissKeyboard>
   );
