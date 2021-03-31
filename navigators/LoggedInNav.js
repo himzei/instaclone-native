@@ -4,13 +4,15 @@ import Feed from "../screens/Feed";
 import Search from "../screens/Search";
 import Notifications from "../screens/Notifications";
 import Me from "../screens/Me";
-import { View } from "react-native";
+import { Image, View } from "react-native";
 import TabIcon from "../components/nav/TabIcon";
 import StackNavFactory from "./SharedStackNav";
+import useMe from "../hooks/useMe";
 
 const Tabs = createBottomTabNavigator();
 
 export default function LoggedInNav() {
+  const { data } = useMe();
   return (
     <Tabs.Navigator
       tabBarOptions={{
@@ -64,9 +66,20 @@ export default function LoggedInNav() {
       </Tabs.Screen>
       <Tabs.Screen
         options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <TabIcon iconName={"person"} color={color} focused={focused} />
-          ),
+          tabBarIcon: ({ focused, color, size }) =>
+            data?.me?.avatar ? (
+              <Image
+                source={{ uri: data.me.avatar }}
+                style={{
+                  height: 25,
+                  width: 25,
+                  borderRadius: 10,
+                  ...(focused && { borderColor: "white", borderWidth: 1 }),
+                }}
+              />
+            ) : (
+              <TabIcon iconName={"person"} color={color} focused={focused} />
+            ),
         }}
         name="Me"
       >

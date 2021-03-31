@@ -35,7 +35,7 @@ const FollowBtnText = styled.Text`
   font-weight: 600;
 `;
 
-export default function UserRow({ avatar, username, isFollowing, isMe }) {
+export default function UserRow({ id, avatar, username, isFollowing, isMe }) {
   const navigation = useNavigation();
   return (
     <Wrapper>
