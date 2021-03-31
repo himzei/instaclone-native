@@ -1,7 +1,14 @@
 import { useLazyQuery, gql } from "@apollo/client";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { View, TextInput, ActivityIndicator } from "react-native";
+import {
+  View,
+  TextInput,
+  ActivityIndicator,
+  useWindowDimensions,
+  Image,
+} from "react-native";
+import { FlatList, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import DismissKeyboard from "../components/DismissKeyboard";
 
@@ -25,9 +32,17 @@ const MessageText = styled.Text`
   font-weight: 600;
 `;
 
-const Input = styled.TextInput``;
+const Input = styled.TextInput`
+  background-color: rgba(255, 255, 255, 1);
+  width: ${(props) => props.width / 1.2};
+  color: black;
+  padding: 5px 10px;
+  border-radius: 7px;
+`;
 
 export default function Search({ navigation }) {
+  const numColumns = 4;
+  const { width } = useWindowDimensions();
   const { setValue, register, watch, handleSubmit } = useForm();
   const [startQueryFn, { loading, data, called }] = useLazyQuery(SEARCH_PHOTOS);
   const onValid = ({ keyword }) => {
@@ -38,9 +53,10 @@ export default function Search({ navigation }) {
     });
   };
   const SearchBox = () => (
-    <TextInput
+    <Input
+      width={width}
       style={{ backgroundColor: "white" }}
-      placeholderTextColor="black"
+      placeholderTextColor="rgba(0, 0, 0, 0.8)"
       placeholder="Search Photos"
       autoCapitalize="none"
       returnKeyLabel="Search"
@@ -56,7 +72,14 @@ export default function Search({ navigation }) {
     });
     register("keyword");
   }, []);
-  console.log(data);
+  const renderItem = ({ item: photo }) => (
+    <TouchableOpacity>
+      <Image
+        source={{ uri: photo.file }}
+        style={{ width: width / numColumns, height: 100 }}
+      />
+    </TouchableOpacity>
+  );
   return (
     <DismissKeyboard>
       <View style={{ flex: 1, backgroundColor: "black" }}>
@@ -71,11 +94,19 @@ export default function Search({ navigation }) {
             <MessageText>Search by keyword</MessageText>
           </MessageContainer>
         ) : null}
-        {!data?.searchPhotos !== undefined &&
-        data?.searchPhotos.length === 0 ? (
-          <MessageContainer>
-            <MessageText>Could not find anything</MessageText>
-          </MessageContainer>
+        {!data?.searchPhotos !== undefined ? (
+          data?.searchPhotos.length === 0 ? (
+            <MessageContainer>
+              <MessageText>Could not find anything</MessageText>
+            </MessageContainer>
+          ) : (
+            <FlatList
+              numColumns={numColumns}
+              data={data?.searchPhotos}
+              keyExtractor={(photo) => "" + photo.id}
+              renderItem={renderItem}
+            />
+          )
         ) : null}
       </View>
     </DismissKeyboard>
