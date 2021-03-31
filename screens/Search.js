@@ -3,12 +3,12 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   View,
-  TextInput,
   ActivityIndicator,
   useWindowDimensions,
   Image,
+  FlatList,
+  TouchableOpacity,
 } from "react-native";
-import { FlatList, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import DismissKeyboard from "../components/DismissKeyboard";
 
@@ -73,7 +73,13 @@ export default function Search({ navigation }) {
     register("keyword");
   }, []);
   const renderItem = ({ item: photo }) => (
-    <TouchableOpacity>
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("Photo", {
+          photoId: photo.id,
+        })
+      }
+    >
       <Image
         source={{ uri: photo.file }}
         style={{ width: width / numColumns, height: 100 }}
