@@ -6,10 +6,10 @@ import styled from "styled-components/native";
 import { colors } from "../colors";
 import DismissKeyboard from "../components/DismissKeyboard";
 import { FEED_PHOTO } from "../fragments";
-import { ReactiveNativeFile } from "apollo-upload-client";
+import { ReactNativeFile } from "apollo-upload-client";
 
 const UPLOAD_PHOTO_MuTATION = gql`
-  mutation uploadPhoto($file: Upload!, $caption: String) {
+  mutation uploadPhoto($file: Upload, $caption: String) {
     uploadPhoto(file: $file, caption: $caption) {
       ...FeedPhoto
     }
@@ -46,7 +46,28 @@ const HeaderRightText = styled.Text`
 `;
 
 export default function UploadForm({ route, navigation }) {
-  const [uploadPhotoMutation, { loading }] = useMutation(UPLOAD_PHOTO_MuTATION);
+  const updateUploadPhoto = (cache, result) => {
+    const {
+      data: { uploadPhoto },
+    } = result;
+    if (uploadPhoto.id) {
+      cache.modify({
+        id: "ROOT_QUERY",
+        fields: {
+          seeFeed(prev) {
+            return [uploadPhoto, ...prev];
+          },
+        },
+      });
+      navigation.navigate("Tabs");
+    }
+  };
+  const [uploadPhotoMutation, { loading, error }] = useMutation(
+    UPLOAD_PHOTO_MuTATION,
+    {
+      update: updateUploadPhoto,
+    }
+  );
   const HeaderRight = () => (
     <TouchableOpacity onPress={handleSubmit(onValid)}>
       <HeaderRightText>Next</HeaderRightText>
@@ -70,9 +91,9 @@ export default function UploadForm({ route, navigation }) {
   }, [loading]);
 
   const onValid = ({ caption }) => {
-    const file = new ReactiveNativeFile({
+    const file = new ReactNativeFile({
       uri: route.params.file,
-      name: `1.jpeg`,
+      name: `1.jpg`,
       type: "image/jpeg",
     });
     uploadPhotoMutation({

@@ -8,6 +8,7 @@ import { onError } from "@apollo/client/link/error";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setContext } from "@apollo/client/link/context";
 import { offsetLimitPagination } from "@apollo/client/utilities";
+import { createUploadLink } from "apollo-upload-client";
 
 const TOKEN = "token";
 
@@ -26,7 +27,9 @@ export const logUserOut = async () => {
   tokenVar(null);
 };
 
-const httpLink = createHttpLink({
+const httpLink = createHttpLink({});
+
+const uploadHttpLink = createUploadLink({
   uri: "https://selfish-dingo-19.loca.lt/graphql",
 });
 
@@ -59,7 +62,7 @@ export const cache = new InMemoryCache({
 });
 
 const client = new ApolloClient({
-  link: authLink.concat(onErrorLink).concat(httpLink),
+  link: authLink.concat(onErrorLink).concat(uploadHttpLink),
   cache,
 });
 
