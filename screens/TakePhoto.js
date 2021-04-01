@@ -91,7 +91,9 @@ export default function TakePhoto({ navigation }) {
     if (save) {
       await MediaLibrary.saveToLibraryAsync(takenPhoto);
     }
-    console.log("will uplao", takenPhoto);
+    navigation.navigate("UploadForm", {
+      file: takenPhoto,
+    });
   };
   const onUpload = () => {
     Alert.alert("Save Photo?", "Save photo & upload or just upload", [
@@ -120,7 +122,7 @@ export default function TakePhoto({ navigation }) {
 
   return (
     <Container>
-      {/* <StatusBar hidden={true} /> */}
+      {/* {isFocused ?  <StatusBar hidden={true} /> : null} */}
       {takenPhoto === "" ? (
         <Camera
           type={cameraType}
