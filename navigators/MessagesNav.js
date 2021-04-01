@@ -15,12 +15,17 @@ export default function MessagesNav() {
         headerStyle: {
           backgroundColor: "black",
         },
-        headerBackImage: ({ tintColor }) => (
-          <Ionicons color={tintColor} name="chevron-down" size={20} />
-        ),
       }}
     >
-      <Stack.Screen name="Rooms" component={Rooms} />
+      <Stack.Screen
+        name="Rooms"
+        component={Rooms}
+        options={{
+          headerBackImage: ({ tintColor }) => (
+            <Ionicons color={tintColor} name="chevron-down" size={30} />
+          ),
+        }}
+      />
       <Stack.Screen name="Room" component={Room} />
     </Stack.Navigator>
   );
