@@ -1,7 +1,7 @@
 import { Camera } from "expo-camera";
 import React, { useEffect, useRef, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { TouchableOpacity, Image, Text } from "react-native";
+import { TouchableOpacity, Image, Text, Alert } from "react-native";
 import Slider from "@react-native-community/slider";
 import styled from "styled-components/native";
 import * as MediaLibrary from "expo-media-library";
@@ -87,6 +87,24 @@ export default function TakePhoto({ navigation }) {
       setFlashMode(Camera.Constants.FlashMode.off);
     }
   };
+  const goToUpload = async (save) => {
+    if (save) {
+      await MediaLibrary.saveToLibraryAsync(takenPhoto);
+    }
+    console.log("will uplao", takenPhoto);
+  };
+  const onUpload = () => {
+    Alert.alert("Save Photo?", "Save photo & upload or just upload", [
+      {
+        text: "Save & Upload",
+        onPress: () => goToUpload(true),
+      },
+      {
+        text: "Just upload",
+        onPress: () => goToUpload(false),
+      },
+    ]);
+  };
   const onCameraReady = () => setCameraReady(true);
   const takePhoto = async () => {
     if (camera.current && cameraReady) {
@@ -171,11 +189,8 @@ export default function TakePhoto({ navigation }) {
           <PhotoAction onPress={onDismiss}>
             <PhotoActionText>Dismiss</PhotoActionText>
           </PhotoAction>
-          <PhotoAction>
+          <PhotoAction onPress={onUpload}>
             <PhotoActionText>Upload</PhotoActionText>
-          </PhotoAction>
-          <PhotoAction>
-            <PhotoActionText>Save & Upload</PhotoActionText>
           </PhotoAction>
         </Actions>
       )}
