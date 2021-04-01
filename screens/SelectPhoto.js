@@ -39,18 +39,23 @@ export default function SelectPhoto({ navigation }) {
   const [ok, setOk] = useState(false);
   const [photos, setPhotos] = useState([]);
   const [chosenPhoto, setChosenPhoto] = useState("");
+
   const getPhotos = async () => {
     const { assets: photos } = await MediaLibrary.getAssetsAsync();
+    console.log(photos);
     setPhotos(photos);
     setChosenPhoto(photos[0]?.uri);
   };
+
   const getPermissions = async () => {
     const {
       accessPrivileges,
       canAskAgain,
-    } = await MediaLibrary.getPermissionsAsync();
+    } = await MediaLibrary.requestPermissionsAsync();
+
     if (accessPrivileges === "none" && canAskAgain) {
       const accessPrivileges = await MediaLibrary.requestPermissionsAsync();
+
       if (accessPrivileges !== "none") {
         setOk(true);
         getPhotos();
@@ -60,21 +65,24 @@ export default function SelectPhoto({ navigation }) {
       getPhotos();
     }
   };
+
   const HeaderRight = () => (
     <TouchableOpacity>
       <HeaderRightText>Next</HeaderRightText>
     </TouchableOpacity>
   );
+
   useEffect(() => {
     getPermissions();
   }, []);
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: HeaderRight,
     });
   }, []);
-  const numColumns = 4;
 
+  const numColumns = 4;
   const { width } = useWindowDimensions();
   const choosePhoto = (uri) => {
     setChosenPhoto(uri);
