@@ -30,7 +30,7 @@ export const logUserOut = async () => {
 const httpLink = createHttpLink({});
 
 const uploadHttpLink = createUploadLink({
-  uri: "https://selfish-dingo-19.loca.lt/graphql",
+  uri: "https://rotten-firefox-41.loca.lt/graphql",
 });
 
 const authLink = setContext((_, { headers }) => {
