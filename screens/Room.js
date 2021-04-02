@@ -8,6 +8,20 @@ import { useForm } from "react-hook-form";
 import { Ionicons } from "@expo/vector-icons";
 import useMe from "../hooks/useMe";
 
+const ROOM_UPDATES = gql`
+  subscription roomUdates($id: Int!) {
+    roomUdates(id: $id) {
+      id
+      payload
+      user {
+        username
+        avatar
+      }
+      read
+    }
+  }
+`;
+
 const SEND_MESSAGE_MUTATION = gql`
   mutation sendMessage($payload: String!, $roomId: Int, $userId: Int) {
     sendMessage(payload: $payload, roomId: $roomId, userId: $userId) {
@@ -123,6 +137,7 @@ export default function Room({ route, navigation }) {
       });
     }
   };
+
   const [sendMessageMutation, { loading: sendingMessage }] = useMutation(
     SEND_MESSAGE_MUTATION,
     {
@@ -130,11 +145,23 @@ export default function Room({ route, navigation }) {
     }
   );
 
-  const { data, loading } = useQuery(ROOM_QUERY, {
+  const { data, loading, subscribeToMore } = useQuery(ROOM_QUERY, {
     variables: {
       id: route?.params?.id,
     },
   });
+
+  useEffect(() => {
+    if (data?.seeRoom) {
+      subscribeToMore({
+        document: ROOM_UPDATES,
+        variables: {
+          id: route?.params?.id,
+        },
+      });
+    }
+  }, [data]);
+
   const onValid = ({ message }) => {
     if (!sendingMessage) {
       sendMessageMutation({
@@ -145,6 +172,7 @@ export default function Room({ route, navigation }) {
       });
     }
   };
+
   useEffect(() => {
     register("message", { required: true });
   }, [register]);
@@ -165,8 +193,10 @@ export default function Room({ route, navigation }) {
       <Message>{message.payload}</Message>
     </MessageContainer>
   );
+
   const messages = [...(data?.seeRoom?.messages ?? [])];
   messages.reverse();
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: "black" }}

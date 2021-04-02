@@ -34,9 +34,9 @@ const wsLink = new WebSocketLink({
   uri: "https://rotten-firefox-41.loca.lt/graphql",
   options: {
     reconnect: true,
-    connectionParams: {
+    connectionParams: () => ({
       token: tokenVar(),
-    },
+    }),
   },
 });
 
