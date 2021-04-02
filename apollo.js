@@ -1,14 +1,13 @@
-import {
-  ApolloClient,
-  createHttpLink,
-  InMemoryCache,
-  makeVar,
-} from "@apollo/client";
+import { ApolloClient, InMemoryCache, makeVar, split } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setContext } from "@apollo/client/link/context";
-import { offsetLimitPagination } from "@apollo/client/utilities";
+import {
+  getMainDefinition,
+  offsetLimitPagination,
+} from "@apollo/client/utilities";
 import { createUploadLink } from "apollo-upload-client";
+import { WebSocketLink } from "@apollo/client/link/ws";
 
 const TOKEN = "token";
 
@@ -27,10 +26,18 @@ export const logUserOut = async () => {
   tokenVar(null);
 };
 
-const httpLink = createHttpLink({});
-
 const uploadHttpLink = createUploadLink({
   uri: "https://rotten-firefox-41.loca.lt/graphql",
+});
+
+const wsLink = new WebSocketLink({
+  uri: "https://rotten-firefox-41.loca.lt/graphql",
+  options: {
+    reconnect: true,
+    connectionParams: {
+      token: tokenVar(),
+    },
+  },
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -61,8 +68,22 @@ export const cache = new InMemoryCache({
   },
 });
 
+const httpLinks = authLink.concat(onErrorLink).concat(uploadHttpLink);
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink,
+  httpLinks
+);
+
 const client = new ApolloClient({
-  link: authLink.concat(onErrorLink).concat(uploadHttpLink),
+  link: splitLink,
   cache,
 });
 
