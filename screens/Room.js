@@ -20,6 +20,7 @@ const SEND_MESSAGE_MUTATION = gql`
 const ROOM_QUERY = gql`
   query seeRoom($id: Int!) {
     seeRoom(id: $id) {
+      id
       messages {
         id
         payload
@@ -69,15 +70,16 @@ const TextInput = styled.TextInput`
 
 export default function Room({ route, navigation }) {
   const { data: meData } = useMe();
-  const { register, setValue, handleSubmit, getValues } = useForm();
+  const { register, setValue, handleSubmit, getValues, watch } = useForm();
   const updateSendMessage = (cache, result) => {
     const {
       data: {
-        sendMessage: { ok, error },
+        sendMessage: { ok, id },
       },
     } = result;
     if (ok && meData) {
       const { message } = getValues();
+      setValue("message", "");
       const messageObj = {
         id,
         payload: message,
@@ -106,7 +108,7 @@ export default function Room({ route, navigation }) {
         id: `Room:${route.params.id}`,
         fields: {
           messages(prev) {
-            return [messageFragment, ...prev];
+            return [...prev, messageFragment];
           },
         },
       });
@@ -163,7 +165,7 @@ export default function Room({ route, navigation }) {
       <ScreenLayout loading={loading}>
         <FlatList
           ItemSeparatorComponent={() => <View style={{ height: 20 }}></View>}
-          style={{ width: "100%", paddingTop: 10 }}
+          style={{ width: "100%", paddingVertical: 10 }}
           keyExtractor={(message) => "" + message.id}
           renderItem={renderItem}
           data={data?.seeRoom?.messages}
@@ -174,6 +176,7 @@ export default function Room({ route, navigation }) {
           returnKeyType="send"
           onChangeText={(text) => setValue("message", text)}
           onSubmitEditing={handleSubmit(onValid)}
+          value={watch("message")}
         />
       </ScreenLayout>
     </KeyboardAvoidingView>
